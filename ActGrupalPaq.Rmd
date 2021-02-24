@@ -1,6 +1,5 @@
 ---
 title: "PaqueteActividadGrupal"
-output: html_document
 ---
 
 ## ACTIVIDAD GRUPAL 
