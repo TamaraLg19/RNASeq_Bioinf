@@ -1,0 +1,61 @@
+
+#ReCount3
+700 mil muestras de RNA-seq de humano y ratón
+
+```{r}
+# Paquete de R que carga todas las dependencias (SummarizedExperiment)
+library("recount3")
+
+# Revisemos todos los proyectos con datos de humano en recount3
+human_projects <- available_projects()
+```
+
+Identificar un estudio de interés, descargar los datos usando la función create_rse() con argumentos para especificar la anotación que queremos usar (las opciones dependen del organismo), y determinar cómo accesar a la información (a nivel de genes, exones, etc). Sabiendo el estudio de interes, podemos  como mostramos a continuación. 
+
+```{r}
+proj_info <- subset(
+    human_projects,
+    project == "SRP009615" & project_type == "data_sources"
+)
+# Crea un objetio de tipo RangedSummarizedExperiment (RSE) con la información a nivel de genes
+rse_gene_SRP009615 <- create_rse(proj_info)
+```
+
+```{r}
+# Explora el objeto RSE
+rse_gene_SRP009615
+```
+
+De forma interactiva se puede escoger el estudio de interés usando el código o vía el explorar de estudios que creamos.
+
+```{r}
+# Explora los proyectos disponibles de forma interactiva
+# proj_info_interactive <- interactiveDisplayBase::display(human_projects)
+# Selecciona un solo renglón en la tabla y da click en "send".
+
+# Crea el objeto RSE
+# rse_gene_interactive <- create_rse(proj_info_interactive)
+```
+
+Funciones necesarias y específicas:
+
+```{r}
+# Convirtamos las cuentas por nucleótido a cuentas por lectura. Para otras transformaciones, revisa transform_counts().
+assay(rse_gene_SRP009615, "counts") <- compute_read_counts(rse_gene_SRP009615)
+
+# Para este estudio en específico
+rse_gene_SRP009615 <- expand_sra_attributes(rse_gene_SRP009615)
+colData(rse_gene_SRP009615)[
+    ,
+    grepl("^sra_attribute", colnames(colData(rse_gene_SRP009615)))
+]
+```
+
+###Ejercicio
+
+```{r}
+# Explora el objeto 
+library("iSEE")
+iSEE::iSEE(rse_gene_SRP009615)
+```
+PDF FeatureAssayPlot1(2) en la carpeta
