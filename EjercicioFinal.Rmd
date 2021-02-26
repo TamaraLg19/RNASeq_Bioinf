@@ -1,0 +1,120 @@
+---
+output:
+  html_document: default
+  pdf_document: default
+---
+
+### Ejercicio Final
+
+Datos
+```{r}
+speaqeasy_data <- file.path(tempdir(), "rse_speaqeasy.RData")
+download.file("https://github.com/LieberInstitute/SPEAQeasy-example/blob/master/rse_speaqeasy.RData?raw=true", speaqeasy_data, mode = "wb")
+
+library("SummarizedExperiment")
+load(speaqeasy_data, verbose = TRUE)
+```
+
+```{r}
+rse_gene
+```
+
+- ¿Hay diferencias en totalAssignedGene o mitoRate entre los grupos de diagnosis (PrimaryDx)?
+- Grafica la expresión de SNAP25 para cada grupo de diagnosis.
+- Sugiere un modelo estadistico que podríamos usar en una análisis de expresión diferencial. Verifica que si sea un modelo full rank. ¿Cúal sería el o los coeficientes de interés?
+
+```{r}
+# Conocer columnas de información
+head(colData(rse_gene))
+```
+
+```{r}
+# Explorar datos pedidos y más variables
+head(rse_gene$totalAssignedGene)
+head(rse_gene$mitoRate)
+head(rse_gene$PrimaryDx)
+
+head(rse_gene$BrainRegion)
+head(rse_gene$Sex)
+head(rse_gene$AgeDeath)
+```
+
+Columnas informativas con suficiente información categorizada: 'BrainRegion', 'PrimaryDx', 'Sex'
+```{r}
+# Conocer niveles 
+table(rse_gene$PrimaryDx)
+table(rse_gene$BrainRegion)
+table(rse_gene$Sex)
+```
+
+```{r}
+# Eliminar el diagnosis "Other" 
+rse_gene$PrimaryDx <- droplevels(rse_gene$PrimaryDx)
+table(rse_gene$PrimaryDx)
+```
+
+```{r}
+# Diferencias entre grupos de 'PrimaryDx'
+with(colData(rse_gene), tapply(totalAssignedGene, PrimaryDx, summary))
+```
+```{r}
+with(colData(rse_gene), tapply(mitoRate, PrimaryDx, summary))
+```
+
+```{r}
+library("ggplot2")
+
+ggplot(as.data.frame(colData(rse_gene)), aes(y = mitoRate, x = PrimaryDx)) +
+    geom_boxplot() +
+    theme_bw(base_size = 20) +
+    ylab("mitoRate") +
+    xlab("Diagnosis-PrimaryDx")
+```
+
+```{r}
+ggplot(as.data.frame(colData(rse_gene)), aes(y = totalAssignedGene, x = PrimaryDx)) +
+    geom_boxplot() +
+    theme_bw(base_size = 20) +
+    ylab("totalAssignedGene") +
+    xlab("PrimaryDx")
+```
+```{r}
+rowData(rse_gene)
+```
+
+```{r}
+# Encontrar gen 'SNAP25'
+index <- match("SNAP25", rowData(rse_gene)$Symbol)
+index
+```
+
+```{r}
+rse_gene[index]
+```
+
+```{r}
+# Explorar interactivamente la expresión de SNAP25 para cada grupo de diagnosis (PrimaryDx)
+iSEE::iSEE(rse_gene[index])
+```
+*Resultado: SNAP25PrimaryDx.pdf*
+
+```{r}
+# Modelo estadístico
+mod <- model.matrix(~ PrimaryDx + totalAssignedGene + BrainRegion + Sex,
+    data = colData(rse_gene)
+)
+
+colnames(mod)
+```
+
+```{r}
+# Explorar modelo con 'ExploreModelMatrix' para verificar que sea full rank
+ExploreModelMatrix::ExploreModelMatrix(
+  colData(rse_gene)[, c(
+    "PrimaryDx", "totalAssignedGene", "BrainRegion", "Sex"
+    )],
+  ~ PrimaryDx + totalAssignedGene + BrainRegion + Sex
+  )
+```
+Tomando en cuenta esas columnas, el modelo sí es full rank. 
+
