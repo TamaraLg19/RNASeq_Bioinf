@@ -52,10 +52,12 @@ colData(rse_gene_SRP009615)[
 ```
 
 ###Ejercicio
-
+Utiliza iSEE para reproducir la imagen
 ```{r}
 # Explora el objeto 
 library("iSEE")
 iSEE::iSEE(rse_gene_SRP009615)
 ```
-PDF FeatureAssayPlot1(2) en la carpeta
+PDF: FeatureAssayPlot1_EjercicioRecount 
+
+![Ejercicio](FeatureAssayPlot1_EjercicioRecount.pdf)

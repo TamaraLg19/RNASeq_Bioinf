@@ -1,5 +1,5 @@
 
-#Model Matrix
+#Model Matrix y análisis de datos
 Regresiones lineales usando la función 'model.matrix()' y la sintáxis de fórmula 'Y ~ X1 + X2'.
 'ExploreModelMatrix' es un paquete de Bioconductor que  ayuda a entender los modelos estadísticos que se están usando por visualizaciones.
 

@@ -70,7 +70,7 @@ seqnames(rowRanges(rse))
 ```
 
 ###Ejercicio 1
-
+Explica que sucede en las siguientes líneas de código de R.
 ```{r}
 ## Comando 1: regresa toda la información de los primeros dos genes
 rse[1:2, ]
@@ -79,6 +79,8 @@ rse[1:2, ]
 rse[, c("A", "D", "F")]
 
 ```
+
+
 
 ##iSEE
 
@@ -89,7 +91,7 @@ iSEE::iSEE(rse)
 ```
 
 ###Ejercicio
-
+Descarga un PDF que reproduzca la imagen.
 ```{r}
 ## Descargar datos de spatialLIBD
 sce_layer <- spatialLIBD::fetch_data("sce_layer")
@@ -100,12 +102,15 @@ iSEE::iSEE(sce_layer)
 ```
 
 1. Obtener el PDF parecido al presentado: cambiar tamaño, transparencia y 'layer_guess_reordered_short'
+![PCA](PCA-iSEE.pdf)
+
 2. Crear el heatmap: agregar a complex heatmap los genes MOBP, MBP y PCP4 por su clave, y se hace cluster. Intenté poner los nombres de los genes con 'Row annotations' a 'gene_name', pero sólo salían números. 
 Sabiendo que: 
   ENSG00000168314   MOBP
   ENSG00000183036   PCP4
   ENSG00000197971   MBP
+![Heatmap](Heatmap3Genes.pdf)
 
 Los genes que se agrupan más cercanos (que se parecen más) son MOBP y MBP. Se expresan más en la capa WM (obtenido de 'Feature Assay Plot' de cada gen)
-
+![MOBP](MOBPFeatureAssayPlot.pdf)
 

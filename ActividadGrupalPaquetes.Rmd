@@ -4,8 +4,6 @@ title: "PaqueteActividadGrupal"
 
 ## ACTIVIDAD GRUPAL 
 
-Equipo: Tamara, Joshua, Joel
-
 Evaluamos 4 paquetes diferentes. Todos los paquetes analizados parecen funcionar en todos los sistemas operativos. La mayoría de los paquetes son muy recientes y con descargas insuficientes para determinar todos los posibles errores o complicaciones no previstas que puedan surgir a la hora de usarlos.  
 
 El paquete elegido fue: **GWENA**
