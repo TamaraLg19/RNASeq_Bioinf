@@ -1,6 +1,8 @@
 
-#ReCount3
-700 mil muestras de RNA-seq de humano y ratón
+# ReCount3
+
+
+###### 700 mil muestras de RNA-seq de humano y ratón
 
 ```{r}
 # Paquete de R que carga todas las dependencias (SummarizedExperiment)
@@ -53,11 +55,10 @@ colData(rse_gene_SRP009615)[
 
 ###Ejercicio
 Utiliza iSEE para reproducir la imagen
-```{r}
+```{r include=FALSE}
 # Explora el objeto 
 library("iSEE")
 iSEE::iSEE(rse_gene_SRP009615)
 ```
-PDF: FeatureAssayPlot1_EjercicioRecount 
+*PDF: FeatureAssayPlot1_EjercicioRecount.pdf* 
 
-![Ejercicio](FeatureAssayPlot1_EjercicioRecount.pdf)

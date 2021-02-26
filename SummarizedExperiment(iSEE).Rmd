@@ -1,20 +1,20 @@
-#Clase SummarizedExperiment - iSEE
+# Clase SummarizedExperiment - iSEE
 
 ## SummarizedExperiment
 
 ```{r}
-## Crear el objeto SummarizedExperiment 
+# Crear el objeto SummarizedExperiment 
 library("SummarizedExperiment")
 
-## Creamos los datos para nuestro objeto de tipo SummarizedExperiment para 200 genes a lo largo de 6 muestras
+# Crear los datos para el objeto de tipo SummarizedExperiment para 200 genes a lo largo de 6 muestras
 nrows <- 200
 ncols <- 6
 
-## Números al azar de cuentas
+# Números al azar de cuentas
 set.seed(20210223)
 counts <- matrix(runif(nrows * ncols, 1, 1e4), nrows)
 
-## Información de nuestros genes
+# Información de genes
 rowRanges <- GRanges(
   rep(c("chr1", "chr2"), c(50, 150)),
   IRanges(floor(runif(200, 1e5, 1e6)), width = 100),
@@ -23,53 +23,69 @@ rowRanges <- GRanges(
 )
 names(rowRanges) <- paste0("gene_", seq_len(length(rowRanges)))
 
-## Información de nuestras muestras
+# Información de muestras
 colData <- DataFrame(
   Treatment = rep(c("ChIP", "Input"), 3),
   row.names = LETTERS[1:6]
 )
 
-## Juntamos ahora toda la información en un solo objeto de R
+# Juntar toda la información en un solo objeto de R
 rse <- SummarizedExperiment(
   assays = SimpleList(counts = counts),
   rowRanges = rowRanges,
   colData = colData
 )
 
-## Exploremos el objeto resultante
+# Objeto resultante
 rse
 ```
 
 ```{r}
-## Número de genes y muestras
+# Número de genes y muestras
 dim(rse)
+```
 
-## IDs de nuestros genes y muestras
+```{r}
+# IDs de genes y muestras
 dimnames(rse)
+```
 
-## Nombres de tablas de cuentas que tenemos (RPKM, CPM, counts, logcounts, etc)
+```{r}
+# Nombres de tablas de cuentas (RPKM, CPM, counts, logcounts, etc)
 assayNames(rse)
+```
 
-## El inicio de nuestra tabla de cuentas
+```{r}
+# Inicio de la tabla de cuentas
 head(assay(rse))
+```
 
-## Información de los genes en un objeto de Bioconductor
+```{r}
+# Información de los genes en un objeto de Bioconductor
 rowRanges(rse)
+```
 
-## Tabla con información de los genes o 'mcols(rowRanges(rse))'
+```{r}
+# Tabla con información de los genes o 'mcols(rowRanges(rse))'
 rowData(rse)
+```
 
-## Tabla con información de las muestras
+```{r}
+# Tabla con información de las muestras
 colData(rse)
+```
 
-## Ver los "unique" levels (cromosomas)
+```{r}
+# Ver los "unique" levels (cromosomas)
 seqlevels(rse)
+```
 
-## Tabla comprimida por repetición de cada level (chromosoma)
+```{r}
+# Tabla comprimida por repetición de cada level (chromosoma)
 seqnames(rowRanges(rse))
 ```
 
-###Ejercicio 1
+##### Ejercicio 1
 Explica que sucede en las siguientes líneas de código de R.
 ```{r}
 ## Comando 1: regresa toda la información de los primeros dos genes
@@ -81,7 +97,6 @@ rse[, c("A", "D", "F")]
 ```
 
 
-
 ##iSEE
 
 ```{r}
@@ -90,7 +105,7 @@ library("iSEE")
 iSEE::iSEE(rse)
 ```
 
-###Ejercicio
+##### Ejercicio
 Descarga un PDF que reproduzca la imagen.
 ```{r}
 ## Descargar datos de spatialLIBD
@@ -102,15 +117,15 @@ iSEE::iSEE(sce_layer)
 ```
 
 1. Obtener el PDF parecido al presentado: cambiar tamaño, transparencia y 'layer_guess_reordered_short'
-![PCA](PCA-iSEE.pdf)
+*PDF: PCA-iSEE.pdf*
 
 2. Crear el heatmap: agregar a complex heatmap los genes MOBP, MBP y PCP4 por su clave, y se hace cluster. Intenté poner los nombres de los genes con 'Row annotations' a 'gene_name', pero sólo salían números. 
 Sabiendo que: 
   ENSG00000168314   MOBP
   ENSG00000183036   PCP4
   ENSG00000197971   MBP
-![Heatmap](Heatmap3Genes.pdf)
+*PDF: Heatmap3Genes.pdf*
 
 Los genes que se agrupan más cercanos (que se parecen más) son MOBP y MBP. Se expresan más en la capa WM (obtenido de 'Feature Assay Plot' de cada gen)
-![MOBP](MOBPFeatureAssayPlot.pdf)
+*PDF: MOBPFeatureAssayPlot.pdf*
 

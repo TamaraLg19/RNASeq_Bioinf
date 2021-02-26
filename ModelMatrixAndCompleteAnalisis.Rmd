@@ -1,10 +1,10 @@
 
-#Model Matrix y análisis de datos
+# Model Matrix y análisis de datos
 Regresiones lineales usando la función 'model.matrix()' y la sintáxis de fórmula 'Y ~ X1 + X2'.
 'ExploreModelMatrix' es un paquete de Bioconductor que  ayuda a entender los modelos estadísticos que se están usando por visualizaciones.
 
 
-###Ejemplo 1
+#### Ejemplo 1
 
 ```{r}
 # Datos 
@@ -29,7 +29,7 @@ cowplot::plot_grid(plotlist = vd$plotlist)
 ```
 
 
-###Datos de SRP045638
+### Datos de SRP045638
 Datos de https://www.ncbi.nlm.nih.gov/sra/?term=SRP045638 procesados con recount3. 
 
 ```{r}
@@ -203,7 +203,7 @@ pheatmap(
 )
 ```
 
-### Ejercicio
+##### Ejercicio
 Agreguen los nombres de los genes al pheatmap.
 
 ```{r}
