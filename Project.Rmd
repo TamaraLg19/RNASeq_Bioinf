@@ -1,0 +1,190 @@
+
+# Proyecto  
+Tamara López González
+
+### 1. Perfil transcripcional de un panel de línea celular de cáncer de mama utilizando tecnología RNAseq
+56 breast cancer cell lines were profiled to identify patterns of gene expression associated with subtype and response to therapeutic compounds. Overall design: Cell lines were profiled in their baseline, unperturbed state.
+------------- SRP026537
+
+### Obtención de información
+
+```{r}
+library("recount3")
+library("edgeR")
+library("ggplot2")
+library("limma")
+library("pheatmap")
+```
+
+```{r}
+human_projects <- available_projects()
+```
+
+```{r}
+rse_gene_SRP026537 <- create_rse(
+    subset(
+        human_projects,
+        project == "SRP026537" & project_type == "data_sources"
+    )
+)
+
+assay(rse_gene_SRP026537, "counts") <- compute_read_counts(rse_gene_SRP026537)
+```
+
+```{r}
+rse_gene_SRP026537
+```
+
+```{r}
+rse_gene_SRP026537 <- expand_sra_attributes(rse_gene_SRP026537)
+
+colData(rse_gene_SRP026537)[
+    ,
+    grepl("^sra_attribute", colnames(colData(rse_gene_SRP026537)))
+]
+```
+Las columnas de 'cell_type' y 'source_name' no son informativas. 
+
+### Evaluar, limpiar y normalizar datos
+
+```{r}
+# Conocer niveles de columnas informativas
+table(rse_gene_SRP026537$sra_attribute.cell_line)
+table(rse_gene_SRP026537$sra_attribute.subtype)
+```
+
+```{r}
+# Evaluar muestras y diferencias
+rse_gene_SRP026537$assigned_gene_prop <- rse_gene_SRP026537$recount_qc.gene_fc_count_all.assigned / rse_gene_SRP026537$recount_qc.gene_fc_count_all.total
+summary(rse_gene_SRP026537$assigned_gene_prop)
+```
+
+Parece no haber muestras de baja calidad. 
+```{r}
+hist(x = rse_gene_SRP026537$assigned_gene_prop, col = "peachpuff1")
+```
+
+```{r}
+# Diferencias entre grupos de subtipos 
+with(colData(rse_gene_SRP026537), tapply(assigned_gene_prop, sra_attribute.subtype, summary))
+```
+
+```{r}
+# Calcular los niveles medios de expresión de los genes en las muestras.
+gene_means <- rowMeans(assay(rse_gene_SRP026537, "counts"))
+summary(gene_means)
+```
+
+Eliminar genes con niveles de expresión muy bajos
+```{r}
+# Limpieza de genes con niveles de expresión
+rse_gene_SRP026537_unfiltered <- rse_gene_SRP026537
+rse_gene_SRP026537 <- rse_gene_SRP026537[gene_means > 0.05, ]
+
+# Resultado por dimensiones y porcentaje
+dim(rse_gene_SRP026537)
+round(nrow(rse_gene_SRP026537) / nrow(rse_gene_SRP026537_unfiltered) * 100, 2)
+
+```
+
+Normalizar datos de la limpieza
+```{r}
+dge <- DGEList(
+    counts = assay(rse_gene_SRP026537, "counts"),
+    genes = rowData(rse_gene_SRP026537)
+)
+dge <- calcNormFactors(dge)
+
+```
+
+### Análisis y expresión diferencial
+```{r}
+# Explorar datos de expresión por subtipos con gráficas
+ggplot(as.data.frame(colData(rse_gene_SRP026537)), aes(y = assigned_gene_prop, x = sra_attribute.subtype)) +
+    geom_boxplot(fill = c("lightblue2", "pink1", "palegreen3", "thistle2", "darkseagreen2")) +
+    theme_bw(base_size = 20) +
+    ylab("Assigned Gene Prop") +
+    xlab("Subtype")
+
+```
+Explorar expresión interactivamente con iSEE
+```{r eval=FALSE, include=FALSE}
+# Explorar expresión interactivamente con iSEE
+iSEE::iSEE(rse_gene_SRP026537)
+```
+
+*PDF: ColumnDataProject.pdf*
+
+![iSEE](/Users/Tami/expresion-subtypes.jpg)
+
+Análisis con modelo estadístico
+```{r}
+# Modelo estadístico por subtipos
+mod <- model.matrix(~ sra_attribute.subtype + assigned_gene_prop,
+    data = colData(rse_gene_SRP026537)
+)
+
+colnames(mod)
+```
+
+```{r}
+# Expresión diferencial 
+vGene <- voom(dge, mod, plot = TRUE)
+```
+
+```{r}
+eb_results <- eBayes(lmFit(vGene))
+
+de_results <- topTable(
+    eb_results,
+    coef = 2,
+    number = nrow(rse_gene_SRP026537),
+    sort.by = "none"
+)
+dim(de_results)
+```
+
+```{r}
+head(de_results)
+```
+
+```{r}
+# Genes diferencialmente expresados entre 'subtypes' con FDR < 5%
+table(de_results$adj.P.Val < 0.05)
+```
+
+```{r}
+# Visualizar los resultados estadísticos
+plotMA(eb_results, coef = 2)
+```
+
+```{r}
+# Extraer valores de los genes de interés
+exprs_heatmap <- vGene$E[rank(de_results$adj.P.Val) <= 50, ]
+
+# Tabla con información de las muestras y con nombres de columnas 
+df <- as.data.frame(colData(rse_gene_SRP026537)[, c("sra_attribute.subtype", "sra_attribute.cell_line")])
+colnames(df) <- c("Subtype", "CellLine")
+
+head(df)
+```
+
+Perfiles de expresión en el DLPFC entre muestras de subtipos
+```{r}
+# Heatmap
+pdf("pheatmap_project.pdf", height = 14, useDingbats = FALSE)
+pheatmap(
+    exprs_heatmap,
+    cluster_rows = TRUE,
+    cluster_cols = TRUE,
+    show_rownames = FALSE,
+    show_colnames = FALSE,
+    annotation_col = df
+)
+dev.off()
+```
+
+*PDF: pheatmap_project.pdf*
+
+![Heatmap](/Users/Tami/heatmap.jpg)
+
